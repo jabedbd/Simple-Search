@@ -6,15 +6,19 @@ import Cart from './cart';
 const API_URL =
   'http://es.backpackbang.com:9200/products/amazon/_search?q=title:';
 var ena = 1;
+var hindex = -1;
 class App extends Component {
   state = {
     query: '',
     results: [],
+    history: [],
     items: [],
+    prcart: [],
     total: 0,
   };
 
   getProduct = () => {
+    if(this.state.query != ''){
     axios.get(`${API_URL}${this.state.query}`).then(({ data }) => {
       if (ena == 1) {
         this.setState({
@@ -22,22 +26,92 @@ class App extends Component {
         });
       }
     });
+    }
+  };
+
+  AddHistory = () => {
+      var cur_item = this.state.prcart;
+      var action = {query:this.state.query, items:cur_item};
+      this.state.history.push(JSON.stringify(action));
+   
+       
+    hindex++; 
+  };
+
+  History = type => {
+    if(type == "forward"){
+    hindex++;
+    if(this.state.history.length > hindex){
+        this.state.items = JSON.parse(this.state.history[hindex]).items;
+        this.search.value = JSON.parse(this.state.history[hindex]).query;
+        this.countTotal();
+        if(JSON.parse(this.state.history[hindex]).query != ''){
+           this.getProduct();
+        }
+    }  
+
+        
+    if(hindex == 0){
+        this.search.value = "";
+         this.state.items = [];
+         this.getProduct;
+          this.countTotal();
+     }
+    if(hindex > this.state.history.length){
+        hindex = this.state.history.length;
+    }
+        
+    }
+    else if(type == "backward"){
+    if(hindex > 0){
+     hindex--;
+    if(this.state.history.length > hindex){
+        console.log(this.state.history);
+        this.state.items = JSON.parse(this.state.history[hindex]).items;
+        this.search.value = JSON.parse(this.state.history[hindex]).query;
+        this.countTotal();
+        if(JSON.parse(this.state.history[hindex]).query != ''){
+           this.getProduct();
+        }
+    }  
+       
+        }
+    if(hindex == 0){
+        this.search.value = "";
+        this.setState({
+          results: [],
+        });
+        this.state.items = [];
+        this.countTotal();
+     }
+    if(hindex > this.state.history.length){
+        hindex = this.state.history.length;
+    }
+    
+    }
+      
   };
 
   addItem = item => {
     this.state.items.push(item);
+    this.state.prcart.push(item);
     this.countTotal();
+    this.AddHistory(); 
   };
 
   clearCart = () => {
     this.state.items = [];
+    this.state.prcart = [];
     this.countTotal();
+    this.AddHistory(); 
   };
 
   removeItem = itemId => {
     if (typeof itemId != 'undefined') {
       this.state.items.splice(itemId, 1);
+      this.state.prcart.splice(itemId, 1);
       this.countTotal();
+      this.AddHistory(); 
     }
   };
   countTotal = () => {
@@ -60,6 +134,10 @@ class App extends Component {
       () => {
         if (this.state.query && this.state.query.length > 1) {
           ena = 1;
+          if (this.state.query && this.state.query.length%2 == 0){
+            this.AddHistory('query',this.state.query);  
+          }
+          
           this.getProduct();
         } else {
           this.state.results = '';
@@ -85,6 +163,7 @@ class App extends Component {
                   onKeyUp={this.handleInputChange}
                   className="search"
                 />
+         
               </div>
               <div className="col-1">
                 <button
@@ -95,6 +174,26 @@ class App extends Component {
                   <i className="fa fa-search" />
                 </button>
               </div>
+             <div className="grid history">
+             <div className="col-1">
+                       <button
+                  type="button"
+                  onClick={() =>{this.History("backward")}}
+                  className="submit"
+                >
+                  <i className="fa fa-arrow-left" />
+                </button>
+                  </div>
+            <div className="col-1">
+                 <button
+                  type="button"
+                  onClick={() =>{this.History("forward")}}
+                  className="submit"
+                >
+                  <i className="fa fa-arrow-right" />
+                </button>
+                  </div>
+                 </div>
             </div>
           </div>
           <div className="products">

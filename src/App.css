@@ -252,3 +252,11 @@ button.addtocart {
 button#item-0 {
     cursor: no-drop;
 }
+
+.grid.history {
+    margin-left: 10px;
+}
+
+.grid.history .submit {
+        border-left: 1px solid #ccc;
+}
