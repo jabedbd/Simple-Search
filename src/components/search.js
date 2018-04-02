@@ -43,7 +43,8 @@ class App extends Component {
     hindex++;
     if(this.state.history.length > hindex){
         this.state.items = JSON.parse(this.state.history[hindex]).items;
-        this.search.value = JSON.parse(this.state.history[hindex]).query;
+         this.search.value = JSON.parse(this.state.history[hindex]).query;
+        this.state.query = JSON.parse(this.state.history[hindex]).query;
         this.countTotal();
         if(JSON.parse(this.state.history[hindex]).query != ''){
            this.getProduct();
@@ -66,9 +67,9 @@ class App extends Component {
     if(hindex > 0){
      hindex--;
     if(this.state.history.length > hindex){
-        console.log(this.state.history);
         this.state.items = JSON.parse(this.state.history[hindex]).items;
-        this.search.value = JSON.parse(this.state.history[hindex]).query;
+         this.search.value = JSON.parse(this.state.history[hindex]).query;
+        this.state.query = JSON.parse(this.state.history[hindex]).query;
         this.countTotal();
         if(JSON.parse(this.state.history[hindex]).query != ''){
            this.getProduct();
